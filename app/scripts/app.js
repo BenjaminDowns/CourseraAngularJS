@@ -24,7 +24,6 @@ var app = angular.module('confusionApp', [])
     return $scope.tab === checkTab;
   };
 
-
   $scope.dishes = [{
     name: 'Uthapizza',
     image: 'images/uthapizza.png',
@@ -89,10 +88,9 @@ var app = angular.module('confusionApp', [])
 
 .controller('FeedbackController', ['$scope', function($scope) {
     $scope.sendFeedback = function() {
-      // console.log($scope.feedback);
+      
       if ($scope.feedback.agree && ($scope.feedback.mychannel == "")) {
-        $scope.invalidChannelSelection = true;
-        // console.log('incorrect');
+        $scope.invalidChannelSelection = true;  
       } else {
         $scope.invalidChannelSelection = false;
         $scope.feedback = {
@@ -110,6 +108,7 @@ var app = angular.module('confusionApp', [])
       }
     };
   }])
+  
   .controller('dishDetailController', function() {
 
     var dish = {
@@ -145,7 +144,6 @@ var app = angular.module('confusionApp', [])
           author: "25 Cent",
           date: "2011-12-02T17:57:28.556094Z"
         }
-
       ]
     };
 
@@ -154,7 +152,9 @@ var app = angular.module('confusionApp', [])
   })
 
 .controller("DishCommentController", ["$scope", function($scope) {
-  
+
+  $scope.newComments = []
+
   $scope.comment = {
     name: "",
     rating: 5,
@@ -169,11 +169,14 @@ var app = angular.module('confusionApp', [])
       comment: $scope.comment.comment,
       date: new Date().toISOString()
     }
-    dishDetailController.$scope.dish.comments.push(newComment)
-    console.log(newComment)
-      // enter into comments
-      // clear the form ($scope.dishComment.$setPristine();)
+    $scope.newComments.push(newComment)
+    // reset the model and view (form) data
+    $scope.comment = {
+      name: "",
+      rating: 5,
+      comment: "",
+      date: ""
+    };
+    $scope.commentForm.$setPristine();
   };
-
-
 }]);

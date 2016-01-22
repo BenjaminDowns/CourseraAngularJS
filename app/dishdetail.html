@@ -52,57 +52,61 @@
                 </blockquote>
             </div>
             <div class="col-xs-9 col-xs-offset-1" ng-controller="DishCommentController">
-                <blockquote ng-show='!commentForm.$pristine'>
-                    <p>Task 3: Here you include the code to show the live preview of the comment</p>
-                    <p>The comment should be shown only when the form contains valid information and is not pristine</p>
+                <blockquote ng-repeat="comment in newComments">
+                    <p>{{comment.rating}} Stars</p>
+                    <p>{{comment.comment}}</p>
+                    <footer>{{comment.author}}, {{comment.date | date}}</footer>
+                </blockquote>
+                <blockquote ng-show='!commentForm.$pristine && commentForm.$valid'>
+                    <p>{{comment.rating}} Stars</p>
+                    <p>{{comment.comment}}</p>
+                    <footer>{{comment.name}}, {{comment.date}}
                 </blockquote>
                 <form class="form-horizontal" name="commentForm" ng-submit="submitComment()" novalidate>
-                    <div class='form-group'>
+                    <div class='form-group' ng-class="{ 'has-error' : commentForm.name.$error.required && ! commentForm.name.$pristine } ">
                         <label for="name" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" ng-model="comment.name" required></input>
+                            <span ng-show="commentForm.name.$error.required && !commentForm.name.$pristine" class="help-block"><strong>Your name is required.</strong></span>
                         </div>
-                        <!--  <span ng-show="commentForm.name.$error.required && !commentForm.name.$pristine" class="help-block">Your name is required.</span> -->
                     </div>
                     <div class="form-group">
-                        <div class="radio col-sm-5 col-sm-offset-2">
+                        <label for="name" class="col-sm-2 control-label">Number of Stars</label>
+                        <div class="radio col-sm-5">
                             <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="5"></input>
-                                <strong>5</strong>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="4"></input>
-                                <strong>4</strong>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="3"></input>
-                                <strong>3</strong>
+                                <input type="radio" name='numStars' ng-model="comment.rating" value="1"></input>
+                                <strong>1</strong>
                             </label>
                             <label class="radio-inline">
                                 <input type="radio" name='numStars' ng-model="comment.rating" value="2"></input>
                                 <strong>2</strong>
                             </label>
                             <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="1"></input>
-                                <strong>1</strong>
+                                <input type="radio" name='numStars' ng-model="comment.rating" value="3"></input>
+                                <strong>3</strong>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name='numStars' ng-model="comment.rating" value="4"></input>
+                                <strong>4</strong>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name='numStars' ng-model="comment.rating" value="5"></input>
+                                <strong>5</strong>
                             </label>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-class="{ 'has-error' : commentForm.comment.$error.required && ! commentForm.comment.$pristine }">
                         <label for="comment" class="col-sm-2 control-label">Your Comment</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" rows="12" ng-model='comment.comment'></textarea>
+                            <textarea class="form-control" name="comment" rows="12" ng-model="comment.comment" required></textarea>
+                            <span ng-show="commentForm.comment.$error.required && !commentForm.comment.$pristine" class="help-block"><strong>A short review is required.</strong></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary">Post Comment</button>
+                            <button type="submit" class="btn btn-primary" ng-disabled="commentForm.$invalid">Post Comment</button>
                         </div>
                     </div>
-                    <p>Task 2: You need to validate that the user name and comments are entered</p>
-                    <p>NOTE to self: You have just finished getting the MVP of the ng-show blockquote to work; need to fix.</p>
-                    <p>Need to check on all the verification of the form and then have the comment get pushed to the comments array of the dishDetailController.dish.coments</p>
-
                 </form>
             </div>
         </div>
