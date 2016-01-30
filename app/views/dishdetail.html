@@ -23,7 +23,7 @@
 </head>
 
 <body>
-    <div class="container" ng-controller='dishDetailController as detailCtrl'>
+    <div class="container" ng-controller='DishDetailController as detailCtrl'>
         <div class="row row-content">
             <div class="col-xs-12">
                 <div class='media-left media-middle'>
@@ -71,27 +71,10 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">Number of Stars</label>
-                        <div class="radio col-sm-5">
-                            <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="1"></input>
-                                <strong>1</strong>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="2"></input>
-                                <strong>2</strong>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="3"></input>
-                                <strong>3</strong>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="4"></input>
-                                <strong>4</strong>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name='numStars' ng-model="comment.rating" value="5"></input>
-                                <strong>5</strong>
+                        <label class="col-xs-12 col-sm-2 control-label">Number of Stars</label>
+                        <div class="col-xs-12 col-sm-10">
+                            <label class="radio-inline" ng-repeat="n in [1,2,3,4,5]">
+                                <input type="radio" name="rating" ng-value="n" ng-model="comment.rating"> {{n}}
                             </label>
                         </div>
                     </div>
@@ -107,12 +90,17 @@
                             <button type="submit" class="btn btn-primary" ng-disabled="commentForm.$invalid">Post Comment</button>
                         </div>
                     </div>
+                    <div class="col-xs-12">
+                        <button class="btn btn-xs btn-primary pull-right" type="button" ui-sref="app.menu">
+                            Back to Menu
+                        </button>
+                        <div class="media">
                 </form>
+                </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <script src="../bower_components/angular/angular.min.js"></script>
-    <script type='text/javascript' src="./scripts/app.js"></script>
+            <script src="../bower_components/angular/angular.min.js"></script>
+            <script type='text/javascript' src="./scripts/app.js"></script>
 </body>
 
 </html>
