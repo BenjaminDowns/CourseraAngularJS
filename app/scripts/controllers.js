@@ -6,17 +6,17 @@ angular.module('confusionApp')
 
   $scope.tab = 1;
   $scope.filtText = '';
-  
-  $scope.showMenu = false;
-  $scope.dishes = {};
-  $scope.message = "Loading..."
 
-  menuFactory.getDishes().then(function(response) {
-    $scope.dishes = response.data;
-    $scope.showMenu = true;
-  }, function(response) {
-    $scope.message = "Error " + response.status + " " + response.statusText;
-  })
+  $scope.showMenu = false;
+  $scope.message = "Loading ...";
+  menuFactory.getDishes().query(
+    function(response) {
+      $scope.dishes = response;
+      $scope.showMenu = true;
+    },
+    function(response) {
+      $scope.message = "Error: " + response.status + " " + response.statusText;
+    });
 
 
   $scope.select = function(setTab) {
@@ -65,14 +65,20 @@ angular.module('confusionApp')
 
 }])
 
-.controller('FeedbackController', ['$scope', function($scope) {
-
-  $scope.sendFeedback = function() {
-
+.controller('FeedbackController', ['$scope', 'feedbackFactory', function($scope, feedbackFactory) {
+  
+  $scope.feedbackReceived = false;
+  
+  $scope.sendFeedback = function() {  
     if ($scope.feedback.agree && ($scope.feedback.mychannel == "")) {
       $scope.invalidChannelSelection = true;
     } else {
       $scope.invalidChannelSelection = false;
+      feedbackFactory.save($scope.feedback, function() {
+          console.log('saved feedback to db')
+      })
+
+      // empty out the form  
       $scope.feedback = {
         mychannel: "",
         firstName: "",
@@ -80,28 +86,32 @@ angular.module('confusionApp')
         agree: false,
         email: ""
       };
-      $scope.feedback.mychannel = "";
+
       $scope.feedbackForm.$setPristine()
-    }
-  };
-}])
+    } // end of else statement
+  }; // end of sendFeedback function
+}]) // end of feedBack controller
 
 .controller('DishDetailController', ['$scope', '$stateParams', 'menuFactory', function($scope, $stateParams, menuFactory) {
 
   $scope.showDish = false;
-  $scope.message = "Loading..."
-  $scope.dish = {};
-
-  menuFactory.getDish(parseInt($stateParams.id, 10)).then(function(response) {
-    $scope.dish = response.data;
-    $scope.showDish = true;
-  }, function(response) {
-    $scope.message = "Error " + response.status + " " + response.statusText
-  })
+  $scope.message = "Loading ...";
+  $scope.dish = menuFactory.getDishes().get({
+      id: parseInt($stateParams.id, 10)
+    })
+    .$promise.then(
+      function(response) {
+        $scope.dish = response;
+        $scope.showDish = true;
+      },
+      function(response) {
+        $scope.message = "Error: " + response.status + " " + response.statusText;
+      }
+    );
 
 }])
 
-.controller('DishCommentController', ['$scope', function($scope) {
+.controller('DishCommentController', ['$scope', 'menuFactory', function($scope, menuFactory) {
 
   $scope.mycomment = {
     rating: 5,
@@ -111,13 +121,14 @@ angular.module('confusionApp')
   };
 
   $scope.submitComment = function() {
-
     $scope.mycomment.date = new Date().toISOString();
-
+    console.log($scope.mycomment);
     $scope.dish.comments.push($scope.mycomment);
 
+    menuFactory.getDishes().update({
+      id: $scope.dish.id
+    }, $scope.dish);
     $scope.commentForm.$setPristine();
-
     $scope.mycomment = {
       rating: 5,
       comment: "",
@@ -125,51 +136,66 @@ angular.module('confusionApp')
       date: ""
     };
   }
+
 }])
 
 .controller("IndexController", ["$scope", "menuFactory", "corporateFactory", function($scope, menuFactory, corporateFactory) {
 
   $scope.showDish = false;
-  $scope.message = "Loading..."
-  $scope.promotion = {}
-  // $scope.execChef = {}
-  // $scope.featuredDish = {}
+  $scope.message = "Loading ...";
+  // $scope.featuredDish = 
+  menuFactory.getDishes().get({
+      id: 0
+    })
+    .$promise.then(
+      function(response) {
+        $scope.featuredDish = response;
+        $scope.showDish = true;
+      },
+      function(response) {
+        $scope.message = "Error: " + response.status + " " + response.statusText;
+      }
+    );
 
-  menuFactory.getDish().then(function(response) {
-    $scope.featuredDish = response.data
-    console.log("successfully loaded from the db")
-    $scope.message = "this should not be here"
-    $scope.showDish = true;
-  }, function(response) {
-    $scope.message = "Error " + response.status + " " + response.statusText
-  });
+
+  $scope.showPromotion = false;
+  $scope.promotionMessage = "Loading ..."
+
+  menuFactory.getPromotion()
+    .get()
+    .$promise
+    .then(function(response) {
+      $scope.promotion = response
+      $scope.showPromotion = true;
+    }, function(response) {
+      $scope.promotionMessage = "Error " + response.status + " " + response.statusText
+    });
 
 
 
-  $scope.featuredDish = menuFactory.getPromotion()
+  corporateFactory.getLeader().get()
+    .$promise.then(
+      function(response) {
+        $scope.execChef = response;
+      },
+      function(response) {
+        $scope.execChef = "Error " + response.status + " " + response.statusText
+        console.log("Error, (from IndexController corporateFactory):  " + response)
+      });
 
-  // .then(function(response) {
-  //   $scope.promotion = response.data
-  //   $scope.showDish = true;
-  // }, function(response) {
-  //   $scope.message = "Error " + response.status + " " + response.statusText
-  // });
-
-  $scope.execChef = corporateFactory.getLeader(3)
-
-  // .then(function(response) {
-  //   $scope.execChef = response.data
-  // }, function(response) {
-  //   $scope.message = "Error " + response.status + " " + response.statusText
-  // });
 
 }])
 
 .controller("AboutController", ["$scope", "corporateFactory", function($scope, corporateFactory) {
-  $scope.leadership = corporateFactory.getLeaders()
+
+  corporateFactory.getLeaders().query(
+    function(response) {
+      $scope.leadership = response
+    },
+    function(response) {
+      $scope.leadership = "Error " + response.status + " " + response.statusText
+      console.log("Error, (from AboutController )  " + response)
+    })
 }])
-
-// implement the IndexController and About Controller here
-
 
 ;
